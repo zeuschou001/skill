@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dify Chatflow DSL"
+  short_description: "Visible Dify Chatflow build via local DSL workflow."
+  default_prompt: "Use $dify-chatflow-dsl-builder to build or repair the local Dify Chatflow through visible browser actions and DSL import/export."

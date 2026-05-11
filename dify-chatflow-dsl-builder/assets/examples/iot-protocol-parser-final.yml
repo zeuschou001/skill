@@ -1,0 +1,455 @@
+app:
+  description: Chatflow for parsing uploaded IoT protocol specifications and generating Java or Python parser code.
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: IoT Protocol Parser
+  use_icon_as_answer_icon: false
+dependencies: []
+kind: app
+version: 0.4.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .txt
+      - .markdown
+      - .md
+      - .mdx
+      - .pdf
+      - .html
+      - .htm
+      - .xlsx
+      - .xls
+      - .docx
+      - .csv
+      - .vtt
+      - .properties
+      - .TXT
+      - .MARKDOWN
+      - .MD
+      - .MDX
+      - .PDF
+      - .HTML
+      - .HTM
+      - .XLSX
+      - .XLS
+      - .DOCX
+      - .CSV
+      - .VTT
+      - .PROPERTIES
+      allowed_file_types:
+      - document
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: true
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: document-extractor
+      id: 1776842421431--1776853252245-target
+      source: '1776842421431'
+      sourceHandle: source
+      target: '1776853252245'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: document-extractor
+        targetType: parameter-extractor
+      id: 1776853252245--1776856632841-target
+      source: '1776853252245'
+      sourceHandle: source
+      target: '1776856632841'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: parameter-extractor
+        targetType: knowledge-retrieval
+      id: 1776856632841--1776856784267-target
+      source: '1776856632841'
+      sourceHandle: source
+      target: '1776856784267'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1776856784267--1776862000001-target
+      source: '1776856784267'
+      sourceHandle: source
+      target: '1776862000001'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: llm
+      id: 1776862000001--1776862000002-target
+      source: '1776862000001'
+      sourceHandle: source
+      target: '1776862000002'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1776862000002--1776854004041-target
+      source: '1776862000002'
+      sourceHandle: source
+      target: '1776854004041'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: Start
+        type: start
+        variables: []
+      height: 54
+      id: '1776842421431'
+      position:
+        x: 79
+        y: 282
+      positionAbsolute:
+        x: 79
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: Extract uploaded protocol files into plain text.
+        is_array_file: true
+        selected: false
+        title: Document Extractor
+        type: document-extractor
+        variable_selector:
+        - sys
+        - files
+      height: 92
+      id: '1776853252245'
+      position:
+        x: 383
+        y: 282
+      positionAbsolute:
+        x: 383
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: Extract protocol facts required for parser generation.
+        instruction: |-
+          Extract protocol facts from the uploaded protocol text.
+          Return empty strings for facts that are not present.
+          Normalize target_language to `java` or `python` when possible.
+          Use `missing_info` to list only the critical missing facts that must be asked before code generation.
+        memory:
+          window:
+            enabled: true
+            size: 20
+        model:
+          completion_params:
+            temperature: 0.2
+          mode: chat
+          name: qwen-max
+          provider: langgenius/tongyi/tongyi
+        parameters:
+        - name: protocol_name
+          type: string
+          required: false
+          description: Protocol name or device family name.
+        - name: device_role
+          type: string
+          required: false
+          description: Device role such as sensor, gateway, meter, or controller.
+        - name: transport
+          type: string
+          required: false
+          description: Transport or link layer, for example TCP, UDP, serial, RS485, or MQTT payload framing.
+        - name: frame_format
+          type: string
+          required: false
+          description: Frame layout, field order, byte lengths, and message structure.
+        - name: endianness
+          type: string
+          required: false
+          description: Byte order rules used by the protocol.
+        - name: checksum_rule
+          type: string
+          required: false
+          description: Checksum, CRC, or validation rule.
+        - name: command_examples
+          type: string
+          required: false
+          description: Concrete command or frame examples found in the document.
+        - name: target_language
+          type: string
+          required: false
+          description: Requested implementation language. Prefer java or python.
+        - name: missing_info
+          type: string
+          required: false
+          description: Critical missing facts that must be collected before code generation.
+        query:
+        - '1776853252245'
+        - text
+        reasoning_mode: prompt
+        selected: false
+        title: Parameter Extractor
+        type: parameter-extractor
+        variables: []
+        vision:
+          enabled: false
+      height: 120
+      id: '1776856632841'
+      position:
+        x: 687
+        y: 282
+      positionAbsolute:
+        x: 687
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        dataset_ids:
+        - __DATASET_ID__
+        desc: Retrieve supporting protocol references from the IoT knowledge base.
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: gte-rerank
+            provider: langgenius/tongyi/tongyi
+          score_threshold: 0.6
+          score_threshold_enabled: true
+          top_k: 6
+        query_variable_selector:
+        - '1776842421431'
+        - sys.query
+        retrieval_mode: multiple
+        selected: false
+        title: Knowledge Retrieval
+        type: knowledge-retrieval
+      height: 54
+      id: '1776856784267'
+      position:
+        x: 991
+        y: 282
+      positionAbsolute:
+        x: 991
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1776856784267'
+          - result
+        desc: Decide whether to ask for missing facts or generate parser code.
+        memory:
+          role_prefix:
+            assistant: Assistant
+            user: User
+          window:
+            enabled: true
+            size: 20
+        model:
+          completion_params:
+            temperature: 0.2
+          mode: chat
+          name: qwen-max
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - role: system
+          text: |-
+              You are an IoT protocol parser engineer.
+              Use the uploaded protocol document as the primary source of truth.
+              Use retrieved knowledge only as supplemental reference.
+              If critical facts are still missing, ask only for the missing facts and do not generate code yet.
+              If enough information is present, generate production-oriented parser code in the requested language.
+              Output markdown.
+        - role: user
+          text: |-
+              USER REQUEST:
+              {{#sys.query#}}
+
+              UPLOADED PROTOCOL TEXT:
+              {{#1776853252245.text#}}
+
+              EXTRACTED FACTS:
+              - protocol_name: {{#1776856632841.protocol_name#}}
+              - device_role: {{#1776856632841.device_role#}}
+              - transport: {{#1776856632841.transport#}}
+              - frame_format: {{#1776856632841.frame_format#}}
+              - endianness: {{#1776856632841.endianness#}}
+              - checksum_rule: {{#1776856632841.checksum_rule#}}
+              - command_examples: {{#1776856632841.command_examples#}}
+              - target_language: {{#1776856632841.target_language#}}
+              - missing_info: {{#1776856632841.missing_info#}}
+
+              KNOWLEDGE RETRIEVAL:
+              {{#1776856784267.result#}}
+
+              TASK:
+              1. If target_language or other critical implementation facts are missing, ask concise follow-up questions only.
+              2. Otherwise generate the parser code in java or python.
+              3. Include assumptions, frame parsing steps, checksum handling, and a short usage example.
+        selected: false
+        title: Parser Generator
+        type: llm
+        vision:
+          enabled: false
+      height: 154
+      id: '1776862000001'
+      position:
+        x: 1295
+        y: 282
+      positionAbsolute:
+        x: 1295
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: Review and refine the generated parser output before returning it.
+        memory:
+          role_prefix:
+            assistant: Assistant
+            user: User
+          window:
+            enabled: true
+            size: 20
+        model:
+          completion_params:
+            temperature: 0.1
+          mode: chat
+          name: qwen-max
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - role: system
+          text: |-
+              You are reviewing generated IoT protocol parser output.
+              If the previous step asked follow-up questions, keep them concise and do not add code.
+              If code is present, improve correctness, robustness, and readability without changing the requested language.
+              Return markdown only.
+        - role: user
+          text: |-
+              ORIGINAL USER REQUEST:
+              {{#sys.query#}}
+
+              CANDIDATE OUTPUT:
+              {{#1776862000001.text#}}
+
+              PROTOCOL TEXT:
+              {{#1776853252245.text#}}
+
+              REVIEW CHECKLIST:
+              - Respect the requested language.
+              - Preserve documented field order, lengths, and endianness.
+              - Call out assumptions when the document is incomplete.
+              - Keep the final answer usable by an engineer immediately.
+        selected: false
+        title: Parser Self Check
+        type: llm
+        vision:
+          enabled: false
+      height: 154
+      id: '1776862000002'
+      position:
+        x: 1599
+        y: 282
+      positionAbsolute:
+        x: 1599
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#1776862000002.text#}}'
+        desc: Return the reviewed parser output to the user.
+        selected: false
+        title: Answer
+        type: answer
+        variables: []
+      height: 114
+      id: '1776854004041'
+      position:
+        x: 1903
+        y: 282
+      positionAbsolute:
+        x: 1903
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 0
+      y: 0
+      zoom: 1
