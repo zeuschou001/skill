@@ -1,0 +1,7 @@
+interface:
+  display_name: "概要设计分析"
+  short_description: "支持材料可读化、需求分析与概要设计两阶段流程"
+  default_prompt: "Use $outline-analysis to normalize source materials, produce requirement analysis, and then generate a traceable high-level design."
+
+policy:
+  allow_implicit_invocation: true
